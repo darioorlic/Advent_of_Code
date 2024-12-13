@@ -30,10 +30,10 @@ elif input[i][j] == '<':
 directions = ((-1,0), (0,1), (1,0), (0,-1)) # up, right, down, left
 
 # First part #######
-path = set()
+
 dir_num = init_dir_num
 direction = directions[dir_num % 4]
-path.add((i, j))
+path = [(i, j)]
 while i in range(1, maxI - 1) and j in range(1, maxJ - 1):
     ni, nj = i + direction[0], j + direction[1]
     if input[ni][nj] == '#': 
@@ -41,10 +41,10 @@ while i in range(1, maxI - 1) and j in range(1, maxJ - 1):
         direction = directions[dir_num % 4]
         continue
     i, j = ni, nj
-    path.add((i, j))
+    path.append((i, j))
 
-print('First answer:', len(path))
-path.discard(init_pos)
+print('First answer:', len(set(path)))
+# path.discard(init_pos)
 t1 = perf_counter()
 print(f'Time: {t1-t0:.3}s')
 
@@ -90,7 +90,10 @@ for obstacle in fixed_obstacles:
 # Go through all new obstacles on the path
 ans2 = 0
 direction = directions[init_dir_num]
-for tmp_obstacle in path:
+visited = set([init_pos])
+for tmp_obstacle, starting_pos in zip(path[1:], path[:-1]):
+    if tmp_obstacle in visited: continue
+    visited.add(starting_pos)
     # print(tmp_obstacle)
     all_obstacles = fixed_obstacles.copy()
     all_obstacles.add(tmp_obstacle)
@@ -113,13 +116,7 @@ for tmp_obstacle in path:
         map.update(get_map(obstacle, all_obstacles))
     # print(map)
 
-    # Walk to first obstacle
-    i, j = init_pos
-    while True:
-        ni, nj = i + direction[0], j + direction[1]
-        if (ni, nj) in all_obstacles: break
-        i, j = ni, nj
-    
+    i, j = starting_pos
     ans2 += in_loop(i, j, map)
 
 print('Second answer:', ans2)
