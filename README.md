@@ -1,1 +1,1 @@
-Repository for my Advent of Code solutions and inputs.
+Repository for my Advent of Code solutions.
