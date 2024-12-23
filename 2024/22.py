@@ -1,11 +1,9 @@
-from collections import deque
-
 with open('22_in.txt') as f:
     input = tuple(int(el) for el in f.read().splitlines())
 
 def generate_next(number, iterations):
     global scores, max_score
-    global best_change
+    # global best_change
     current_scores = dict()
     i = 0
     changes = tuple()
@@ -33,13 +31,12 @@ def generate_next(number, iterations):
         # print(number, bananas, bananas - previous_bananas)
 
     for change, score in current_scores.items():
-        new_score = score
         if change in scores:
-            new_score += scores[change]
-        scores.update({change:new_score})
-        if new_score > max_score:
-            max_score = new_score
-            best_change = change
+            score += scores[change]
+        scores.update({change:score})
+        if score > max_score:
+            max_score = score
+            # best_change = change
 
     return(number)
 
@@ -50,4 +47,4 @@ for inp in input:
     ans1 += generate_next(inp, 2000)
 print('First answer:', ans1)
 print('Second answer:', max_score)
-print(best_change)
+# print(best_change)
