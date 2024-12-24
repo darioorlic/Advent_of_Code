@@ -1,6 +1,7 @@
-from copy import deepcopy
+from functools import cache
+from itertools import repeat
 
-with open('21_test.txt') as f:
+with open('21_in.txt') as f:
     input = tuple(tuple(el) for el in f.read().splitlines())
 # print(input)
 
@@ -8,54 +9,43 @@ keys = {'7':(0,0), '8':(0,1), '9':(0,2), '4':(1,0), '5':(1,1), '6':(1,2), '1':(2
 start = keys['A']
 empty = (3,0)
 
-def get_moves(sequences):
-    paths = [[]]
-    for sequence in sequences:
-        sequence = [keys[el] for el in sequence]
-        sequence = [start] + sequence
-        # print(sequence)
-        for i in range(0, len(sequence)-1):
-            dy = sequence[i+1][0] - sequence[i][0]
-            dx = sequence[i+1][1] - sequence[i][1]
-            # print(dy, dx)
+@cache
+def get_length(sequence, depth = 0):
+    sequence = tuple(keys[el] for el in sequence)
+    sequence = (start,) + sequence
+    depth += 1
+    length = 0
+    for i in range(1, len(sequence)):
+        dy = sequence[i][0] - sequence[i-1][0]
+        dx = sequence[i][1] - sequence[i-1][1]
 
-            vertical = []
-            horizontal = []
+        vertical = tuple()
+        horizontal = tuple()
 
-            if dy > 0: vertical.extend(['v']*abs(dy))
-            elif dy < 0: vertical.extend(['^']*abs(dy))
+        if dy > 0: vertical = ('v',) * abs(dy)
+        elif dy < 0: vertical = ('^',) * abs(dy)
 
-            if dx > 0: horizontal.extend(['>']*abs(dx))
-            elif dx < 0: horizontal.extend(['<']*abs(dx))
-            # print(vertical, horizontal)
+        if dx > 0: horizontal = ('>',)*abs(dx)
+        elif dx < 0: horizontal = ('<',)*abs(dx)
 
-            next_paths = []
-            add1 = []
-            add2 = []
-            if (sequence[i][0] + dy, sequence[i][1]) != empty:
-                add1 = vertical + horizontal + ['A']
-            if (sequence[i][0], sequence[i][1] + dx) != empty:
-                add2 = horizontal + vertical + ['A']
-            for path in paths:
-                if add1 != []:
-                    next_paths.append(path + add1)
-                if add2 != add1 and add2 != []:
-                    next_paths.append(path + add2)
-
-            # print(next_paths)
-            # print()
+        add1 = tuple()
+        add2 = tuple()
+        if (sequence[i-1][0] + dy, sequence[i-1][1]) != empty:
+            add1 = vertical + horizontal + ('A',)
+        if (sequence[i-1][0], sequence[i-1][1] + dx) != empty:
+            add2 = horizontal + vertical + ('A',)
         
-            paths = deepcopy(next_paths)
+        to_add = {el for el in set([add1, add2]) if el != ()}
+        if depth == 26: length += (min(map(len, to_add)))
+        else: length += min(map(get_length, to_add, repeat(depth)))
+            
+    return(length)
 
-    min_len = min(map(len, paths))
-    out = []
-    for path in paths:
-        if len(path) == min_len: out.append(path)
-
-    return(out)
-
+ans1 = 0
+ans2 = 0
 for inp in input:
-    out = get_moves([inp])
-    for i in range(2):
-        out = get_moves(out)
-    print(out)
+    number = int(''.join(inp[:-1]))
+    ans1 += get_length(inp, 23) * number
+    ans2 += get_length(inp) * number
+print('Part one:', ans1)
+print('Part two:', ans2)
