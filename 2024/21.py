@@ -36,7 +36,7 @@ def get_length(sequence, depth = 0):
             add2 = horizontal + vertical + ('A',)
         
         to_add = {el for el in set([add1, add2]) if el != ()}
-        if depth == 26: length += (min(map(len, to_add)))
+        if depth == 26: length += min(map(len, to_add))
         else: length += min(map(get_length, to_add, repeat(depth)))
             
     return(length)
