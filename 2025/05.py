@@ -14,10 +14,7 @@ for line in inp:
         ranges.append((int(start), int(end)+1))
     else:
         id = int(line)
-        for i, (start, end) in enumerate(ranges):
-            if start <= id < end:
-                ans1 += 1
-                break
+        ans1 += any(start <= id <= end for start, end in ranges)
 print('Part 1:', ans1)
 
 ans2 = 0
